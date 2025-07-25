@@ -31,9 +31,8 @@ Datasets used in this study will be uploaded to Zenodo ( TODO ).
 
 ## How to Run
 
-The choice of algorithms and networks to run the experiments on is configured using a YAML file (e.g., [signor_s12.yaml](./config-files/signor_s12.yaml)). The 
-
-To predict the scores of proteins and then to compute node and path based effective diffusion, and diffusion betweenness score run the following bash script.
+The choice of algorithms and networks to run the experiments is configured using a YAML file (e.g., [signor_s12.yaml](./config-files/signor_s12.yaml)). 
+To predict scores of proteins, and to compute node, path based effective diffusion, and diffusion betweenness score, run the following bash script.
 ```
    sh run.sh config-files/signor_s12.yaml
 ```
