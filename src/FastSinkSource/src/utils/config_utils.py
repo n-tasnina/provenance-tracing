@@ -45,6 +45,14 @@ def setup_config_variables(config_map, **kwargs):
             if key not in kwargs or kwargs[key] is None or kwargs[key] == "":
                 kwargs[key] = val
 
+    if config_map.get('dataset_settings'):
+        for key, val in config_map['dataset_settings'].items():
+            # if the user provided a value for this parameter (i.e., in kwargs), don't overwrite it
+            if key not in kwargs or kwargs[key] is None or kwargs[key] == "":
+                if key == 'datasets_dir':
+                    if not os.path.isabs(val):
+                        val = os.path.join(project_root, val)
+                kwargs[key] = val
     return input_settings, input_dir, output_dir, alg_settings, kwargs
 
 

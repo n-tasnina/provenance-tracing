@@ -38,11 +38,7 @@ def parse_args():
     kwargs = vars(args)
     with open(args.config, 'r') as conf:
         config_map = yaml.load(conf, Loader=yaml.FullLoader)
-        # config_map = yaml.load(conf)
-    with open(args.master_config, 'r') as conf:
-        master_config_map = yaml.load(conf, Loader=yaml.FullLoader)
-    # TODO check to make sure the inputs are correct in config_map
-    return config_map, master_config_map, kwargs
+    return config_map, kwargs
 
 
 def setup_opts():
@@ -52,8 +48,6 @@ def setup_opts():
     group = parser.add_argument_group('Main Options')
     group.add_argument('--config', type=str, default="/home/grads/tasnina/Projects/Provenance-Tracing/fss_inputs/config_files/provenance/signor_s12.yaml"
                        , help="Configuration file used when running FSS. ")
-    group.add_argument('--master-config', type=str, default="/home/grads/tasnina/Projects/Provenance-Tracing/config-files/master-config.yaml"
-                       , help="Configuration file used to do mappings")
     group.add_argument('--k-to-test', '-k', type=int, action='append', default=[332],
                        help="k-value(s) for which to get the top-k predictions to test. " +
                             "If not specified, will check the config file.")
@@ -90,7 +84,7 @@ def setup_opts():
     return parser
 
 
-def main(config_map, master_config_map, **kwargs):
+def main(config_map, **kwargs):
 
 
     """
@@ -139,7 +133,7 @@ def main(config_map, master_config_map, **kwargs):
         ess_types = ['org', 'cell']
         viral_types = ['sars2--']
 
-        ess_uniprots_dict = btns_utils.handle_essential_uniprot_mapping(master_config_map, **kwargs)
+        ess_uniprots_dict = btns_utils.handle_essential_uniprot_mapping(**kwargs)
         #get human proteins that interact with viral prots
         viral_prot_file = os.path.join(project_root, kwargs.get('viral_prot_file'))
         viral_uniprots_dict =  btns_utils.parse_viral_prot_file(viral_prot_file)
@@ -407,5 +401,5 @@ def main(config_map, master_config_map, **kwargs):
 
 
 if __name__ == "__main__":
-    config_map, master_config_map, kwargs = parse_args()
-    main(config_map,master_config_map, **kwargs)
+    config_map, kwargs = parse_args()
+    main(config_map, **kwargs)

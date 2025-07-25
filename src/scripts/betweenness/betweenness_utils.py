@@ -96,7 +96,7 @@ def get_uniprot_set(datasets_dir, mapping_settings, prots,**kwargs):
     return set(uniprots)
 
 
-def handle_essential_uniprot_mapping(master_config_map, **kwargs):
+def handle_essential_uniprot_mapping(**kwargs):
     '''
     Return a dict of essential uniprot IDs where
     key = type of essential prot : ['cell','org','all']
@@ -104,9 +104,8 @@ def handle_essential_uniprot_mapping(master_config_map, **kwargs):
     '''
 
     # mapping settings
-    dataset_settings = master_config_map['dataset_settings']
-    datasets_dir = os.path.join(project_root, dataset_settings['datasets_dir'])
-    mapping_settings = dataset_settings.get('mappings')
+    datasets_dir = kwargs.get('datasets_dir')
+    mapping_settings = kwargs.get('mappings')
     species = mapping_settings[0]['species']
 
     # parse essential protein file

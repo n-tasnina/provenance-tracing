@@ -1,4 +1,5 @@
 #!/bin/bash
+conda init
 conda activate provenance
 
 echo "compute scores for proteins by running algorithms (RL or RWR) with list of params mentioned in config file"
@@ -14,4 +15,4 @@ python src/scripts/diffusion/plot_path_type_based_diffusion.py --pos-k --balanci
 echo "Plot node and path based effective diffusion across network and algorithms"
 python src/scripts/diffusion/compare_across_networks_ed_types_balancing_alpha.py  --pos-k --config $1
 echo "Compute diffusion betweenness score. Also compute the overlap between nodes with high betweenness score and viral interactors (and essential proteins)"
-python src/scripts/betweenness/betweenness_src_spec.py --config $1 --master-config $2
+python src/scripts/betweenness/betweenness_src_spec.py --config $1

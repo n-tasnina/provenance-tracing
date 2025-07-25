@@ -1,3 +1,21 @@
+dataset_settings:
+    # Base directory where datasets will be placed
+    datasets_dir: "datasets"
+    # list of mapping files, one per species. Will be placed in datasets/mapping/species/
+    mappings:
+      #### Mapping options:
+          - mapping_file: "HUMAN_9606_idmapping.dat.gz"
+            species: "human"
+            url: "ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/HUMAN_9606_idmapping.dat.gz"
+            type: "list"
+            namespaces: ["geneid", "gene_name", "ensembl", "string", "pharmgkb"]
+
+          - mapping_file: "uniprot-reviewed-status.tab.gz"
+            species: "human"
+            url: "https://rest.uniprot.org/uniprotkb/stream?compressed=true&fields=accession%2Creviewed%2Cprotein_name%2Cgene_names%2Corganism_name&format=tsv&query=%28%2A%29%20AND%20%28model_organism%3A9606%29"
+            type: "table"
+            namespaces: ["Reviewed"] #in 2022 the downloaded mapping file contains 'Reviewed' column instead of 'Status'
+
 algs:
   rwr:
     should_run:
