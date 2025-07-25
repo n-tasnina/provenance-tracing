@@ -12,6 +12,9 @@ build/
 develop-eggs/
 dist/
 downloads/
+outputs/
+fss_inputs/
+datasets/
 eggs/
 .eggs/
 lib/
