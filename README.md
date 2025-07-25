@@ -4,7 +4,7 @@ An algorithm for interpreting or tracing the provenance of score computed by ran
 ## Conda Environment Setup
 If you haven't cloned the repository yet, run the following command to clone it and navigate to the provenance-tracing folder:
 ```bash
-https://github.com/n-tasnina/provenance-tracing.git
+git clone https://github.com/n-tasnina/provenance-tracing.git
 cd provenance-tracing
 ```
 
