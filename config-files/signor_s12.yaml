@@ -1,0 +1,27 @@
+algs:
+  rwr:
+    should_run:
+      - True
+    alpha: [0.1, 0.25, 0.5, 0.75, 0.9, 0.99 ]
+    eps: [ 0.0001 ]
+    max_iters: [ 1000 ]
+
+eval_settings:
+  num_pred_to_write: -1
+  num_reps: 100
+  sample_neg_examples_factor: 5
+
+input_settings:
+  datasets:
+  - exp_name: 2020-03-sarscov2-human-ppi-ace2
+    pos_neg_file: pos-neg/2020-03-sarscov2-human-ppi-ace2/pos.txt
+    plot_exp_name: Signor
+    net_files:
+    - signor_9606_22_12_22.tsv
+    net_version: networks/signor-cc
+    directed: True #if True then disable the code where we make the network symmetric.
+    largest_cc: True
+  input_dir: fss_inputs
+output_settings:
+  output_dir: outputs
+

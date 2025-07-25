@@ -1,0 +1,456 @@
+
+dataset_settings:
+
+    # Base directory where datasets will be placed
+    datasets_dir: "datasets"
+    # list of mapping files, one per species. Will be placed in datasets/mapping/species/
+    mappings:
+      #### Mapping options:
+      # *mapping_file*: path to file. Can be gzipped
+      # *species*: the name of the species 
+      # *url*: the url of the file to download
+      # *file_type*: type of mapping file. Current can be: 
+      # 'list': a list of mappings (i.e., many-to-many) where the first column is a uniprot ID, second is the namespace, and third is the ID of the other namespace
+      # 'table': a table of 1-to-1 mappings.
+      # *namespaces*: namespaces to keep from the file. If 'all' is given, then keep all of the mappings. If *file_type* is table, should be the column names. 
+          - mapping_file: "HUMAN_9606_idmapping.dat.gz"
+            species: "human"
+            url: "ftp://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/idmapping/by_organism/HUMAN_9606_idmapping.dat.gz"
+            type: "list"
+            #namespaces: ["all"]
+            #namespaces: ["ensembl", "gene_name", "string", "biogrid", "pharmgkb", "geneid"]
+            namespaces: ["geneid", "gene_name", "ensembl", "string", "pharmgkb"]
+
+          - mapping_file: "uniprot-reviewed-status.tab.gz"
+            species: "human"
+#            url: "https://www.uniprot.org/uniprot/?query=*&format=tab&force=true&columns=id,reviewed,genes,protein%20names,organism-id&fil=organism:9606&compress=yes"
+            url: "https://rest.uniprot.org/uniprotkb/stream?compressed=true&fields=accession%2Creviewed%2Cprotein_name%2Cgene_names%2Corganism_name&format=tsv&query=%28%2A%29%20AND%20%28model_organism%3A9606%29"
+            type: "table"
+#            namespaces: ["Status"]
+            namespaces: ["Reviewed"] #in 2022 the downloaded mapping file contains 'Reviewed' column instead of 'Status'
+
+
+    # Download and parse *gene_sets*, *networks*, *drug targets*, etc.
+    datasets_to_download:
+      #### Gene set options
+      # *name*: the name of this geneset or collection. Will be used as the directory
+      # *file_name*: name to give the parsed file
+      # *url*: the url of the file to download
+      # *file_type*: the format of the file. If not gmt, will be converted to gmt
+      # *unpack_command*: The command to run to unpackage the file/archive. (e.g., unzip, gzip, tar -xvf)
+      # *geneset_collection*: T/F. Specifies if the downloaded file contains many files. Not yet implemented.
+      # *namespace*: if specified, map to uniprot from the given namespace
+      # *taxon*: the NCBI taxonomy ID of the species to which this network belongs. Currently not used.
+      # *species*: the name of the species (i.e., human, mouse). TODO should be used to line up with the mapping
+      # *prefer_reviewed*: when mapping, if any of the alternate IDs map to a reviewed UniProt ID, keeping only that one. Otherwise keep all UniProt IDs
+      # *sep*: the delimiter of columns in the files
+#        genesets:
+#          # This is a collection of COVID-19 related gene sets submitted by the crowd
+#          - name: "covid19-crowd"
+#            file_name: "genesets-uniprotids.gmt"
+#            file_type: "gmt"
+#            namespace: "gene_name"
+#            url: "https://amp.pharm.mssm.edu/covid19/genesets.gmt"
+#            # some of these gene sets appear to be from mouse. Their website does not yet have that information available.
+#            # see https://github.com/MaayanLab/covid19_crowd_library/issues/58
+#            #taxon: 9606
+#            #species: "human"
+#            mapping_settings:
+#              # if there are multiple mappings to UniProt IDs, use only the 'reviewed' one(s)
+#              prefer_reviewed: True
+#            sep: "\t"
+
+         ### Commenting out wikipathways as the link is broken.
+         ### TODO: update the config with the latest link and validate the format of the downloaded input.
+         # - name: "wikipathways"
+         #   file_name: "human-wikipathways.gmt"
+         #   file_type: "wikipathways"
+         #   downloaded_file: "pathway-list.json"
+         #  #namespace: "uniprot"
+         #   url: "https://webservice.wikipathways.org/listPathways?organism=Homo%20sapiens&format=json"
+         #  # this is the template url for the individual pathway files that will be downloaded
+         #  # code='S': uniprot, code='L': entrez gene
+         #   pathway_prots_url: "https://webservice.wikipathways.org/getXrefList?pwId=%s&code=L&format=json"
+         #   taxon: 9606
+         #   species: "human"
+         #   namespace: "geneid"
+         #   mapping_settings:
+         #     prefer_reviewed: True
+
+      #### Gene-drug dataset options:
+      # *name*: name of this dataset. Will be used as the directory name
+      # *url*: the url of the file to download
+      # *unpack_command*: The command to run to unpackage the file/archive. (e.g., unzip, gzip, tar -xvf)
+      # *unpacked_file*: The name of the file to parse after unpacking the archive.
+      #     Use this to specify the file name if the file was pre-downloaded
+      # *file_name*: the name of the file to write after parsing the downloaded file
+      # *file_type*: file type of the downloaded file. Will be used to parse the file.
+      #     current types: "gmt", "table", "drugbank_csv"
+      # *sep*: the delimiter of columns in the files
+      # *namespace*: the namespace of the nodes in the networks
+      # *taxon*: the NCBI taxonomy ID of the species to which this network belongs. Currently not used.
+      # *species*: the name of the species (i.e., human, mouse). TODO should be used to line up with the mapping
+      # *prefer_reviewed*: when mapping, if any of the alternate IDs map to a reviewed UniProt ID, keeping only that one. Otherwise keep all UniProt IDs
+      # *columns_to_keep*: a list of indexes or names of columns to keep in the new file. 
+      #      If not specified, all columns will be kept
+      # *gmt_file*: the script will also write a gmt file format for "gene sets"
+      # *gmt_cols*: columns to use in the output gmt file. 
+      #      Should be 3 column headers. The first is the drug ID, the second is the description, third is the proteins
+      # *filters*: Only keep the specified values in the given columns
+#        drug-targets:
+#          - name: "pharmgkb"
+#            file_name: "prot-chem-relationships.tsv"
+#            file_type: "table"
+#            sep: "\t"
+#            # available at https://www.pharmgkb.org/downloads
+#            url: "https://s3.pgkb.org/data/relationships.zip"
+#            unpack_command: "unzip"
+#            unpacked_file: "relationships.tsv"
+#            taxon: 9606
+#            species: "human"
+#            mapping_settings:
+#              namespace: "pharmgkb"
+#              prefer_reviewed: True
+#              col_to_map: "Entity1_id"
+#            # keep all columns for now
+#            #columns_to_keep: []
+#            # columns to use in the output gmt file.
+#            gmt_file: "prot-chem-relationships.gmt"
+#            gmt_cols: ["Entity2_id", "Entity2_name", "Entity1_id"]
+#            filters:
+#                # Keep only the drugs that are associated with a gene for now.
+#                - col: "Association"
+#                  vals: ["associated"]
+#                # Keep only the Gene - Chemical interactions for now
+#                - col: "Entity1_type"
+#                  vals: ["Gene"]
+#                - col: "Entity2_type"
+#                  vals: ["Chemical"]
+
+#            # couldn't download the file automatically, so I just put it in the right location
+#            # The name of the originally downloaded zip file is: drugbank_all_target_polypeptide_ids.csv.zip
+#            # downloaded from here: https://www.drugbank.ca/releases/latest#protein-identifiers
+#            # To parse the file, put the file 'all.csv' here: datasets/drug-targets/drugbank/all.csv
+#            # and uncomment this section
+#          - name: "drugbank"
+#            #url: ""
+#            #unpack_command: "unzip"
+#            unpacked_file: "all.csv"
+#            file_type: "drugbank_csv"
+#            file_name: "prot-drug-itxs.tsv"
+#            sep: ","
+#            columns_to_keep: ["UniProt ID", "Drug ID"]
+#            taxon: 9606
+#            species: "human"
+#            gmt_file: "drug-targets.gmt"
+#            gmt_cols: ["Drug ID", "", "UniProt ID"]
+#            filters:
+#                # Keep only the human prots
+#                - col: "Species"
+#                  vals: ["Humans"]
+
+      #### Network options:
+      # *name*: name of this network. Will be used as the directory
+      # *file_name*: the name of the file to download
+      # *network_collection*: T/F. Specifies if the downloaded file is an archive containing many networks
+      # *collection_settings*: settings to apply to each of the individual networks.
+      # *weighted*: T/F. If False, a column of all 1s (i.e., unweighted) will be added after the first two columns. 
+      #     If True, the first column in *columns_to_keep* should be the weights
+      # *unpack_command*: The command to run to unpackage the file/archive. (e.g., unzip, gzip, tar -xvf)
+      # *namespace*: the namespace of the nodes in the networks
+      # *url*: the url of the file to download
+      # *taxon*: the NCBI taxonomy ID of the species to which this network belongs. Currently not used.
+      # *species*: the name of the species (i.e., human, mouse). TODO should be used to line up with the mapping
+      # *prefer_reviewed*: when mapping, if any of the alternate IDs map to a reviewed UniProt ID, keeping only that one. Otherwise keep all UniProt IDs
+      # *gzip_files*: gzip the individual files
+      # *remove_filename_spaces*: if there are spaces in the file names, remove them
+      # *columns_to_keep*: a list of indexes of columns to keep in the new file. Should be >= 2 (first two columns should be the tail and head of the edge) 
+      #     If not specified, all columns will be kept
+      # *sep*: the delimiter of columns in the files
+        networks:
+          ##STRING VERSION 11
+#          - name: "stringv11"
+#            file_name: "9606-uniprot-links-full-v11.txt.gz"
+#            # This flag indicates the downloaded file has all string channels (i.e., "full")
+#            string_networks: True
+#            network_collection: False
+#            weighted: True
+#            #unpack_command: "gunzip"
+#            namespace: "string"
+#            url: "https://stringdb-static.org/download/protein.links.full.v11/9606.protein.links.full.v11.txt.gz"
+#            taxon: 9606
+#            species: "human"
+#            mapping_settings:
+#              # if there are multiple mappings to UniProt IDs, use only the 'reviewed' one(s)
+#              prefer_reviewed: True
+#            # keep all of the columns
+#            #columns_to_keep: []
+#            sep: " "
+
+            ##STRING VERSION 11.5
+          - name: "stringv11-5"
+            file_name: "9606-uniprot-links-full-v11.5.txt.gz"
+            # This flag indicates the downloaded file has all string channels (i.e., "full")
+            string_networks: True
+            network_collection: False
+            weighted: True
+            #unpack_command: "gunzip"
+            namespace: "string"
+            url: "https://stringdb-static.org/download/protein.links.full.v11.5/9606.protein.links.full.v11.5.txt.gz"
+            taxon: 9606
+            species: "human"
+            mapping_settings:
+              # if there are multiple mappings to UniProt IDs, use only the 'reviewed' one(s)
+              prefer_reviewed: True
+            # keep all of the columns
+            #columns_to_keep: []
+            sep: " "
+
+#          - name: "biogridy2h-sept22"
+#            file_name: "BIOGRID-MV-Physical-4.4.214.tab3.zip"
+#            # This flag indicates the downloaded file has all string channels (i.e., "full")
+#            string_networks: False
+#            network_collection: False
+#            weighted: False
+#            namespace: None
+#            url: "https://downloads.thebiogrid.org/Download/BioGRID/Release-Archive/BIOGRID-4.4.214/BIOGRID-MV-Physical-4.4.214.tab3.zip"
+#            taxon: 9606
+#            mapping_settings:
+#              # if there are multiple mappings to UniProt IDs, use only the 'reviewed' one(s)
+#              prefer_reviewed: True
+#
+#            sep: "\t"
+
+
+            # skipping the TissueNetv2 networks since they take a while to download and setup.
+#          - name: "tissuenet-v2/hpa-protein"
+#            file_name: "hpa-protein.zip"
+#            network_collection: True
+#            collection_settings:
+#              gzip_files: True
+#              remove_filename_spaces: True
+#            weighted: False
+#            unpack_command: "unzip"
+#            namespace: "ensembl"
+#            url: "http://netbio.bgu.ac.il/tissuenet2-interactomes/TissueNet2.0/HPA-Protein.zip"
+#            taxon: 9606
+#            species: "human"
+#            mapping_settings:
+#              #keep_multiple: False
+#              # if there are multiple mappings to UniProt IDs, use only the 'reviewed' one(s) 
+#              prefer_reviewed: True
+#            columns_to_keep: []
+#            sep: "\t"
+#
+#          - name: "tissuenet-v2/hpa-rnaseq"
+#            file_name: "hpa-rnaseq.zip"
+#            network_collection: True
+#            collection_settings:
+#              gzip_files: True
+#              remove_filename_spaces: True
+#            weighted: False
+#            unpack_command: "unzip"
+#            namespace: "ensembl"
+#            url: "http://netbio.bgu.ac.il/tissuenet2-interactomes/TissueNet2.0/HPA-RNA-Seq.zip"
+#            taxon: 9606
+#            species: "human"
+#            mapping_settings:
+#              #keep_multiple: False
+#              # if there are multiple mappings to UniProt IDs, use only the 'reviewed' one(s) 
+#              prefer_reviewed: True
+#            columns_to_keep: []
+#            sep: "\t"
+#
+#          - name: "tissuenet-v2/gtex-rnaseq"
+#            file_name: "gtex-rnaseq.zip"
+#            network_collection: True
+#            collection_settings:
+#              gzip_files: True
+#              remove_filename_spaces: True
+#            weighted: False
+#            unpack_command: "unzip"
+#            namespace: "ensembl"
+#            url: "http://netbio.bgu.ac.il/tissuenet2-interactomes/TissueNet2.0/GTEx-RNA-Seq.zip"
+#            taxon: 9606
+#            species: "human"
+#            mapping_settings:
+#              #keep_multiple: False
+#              # if there are multiple mappings to UniProt IDs, use only the 'reviewed' one(s) 
+#              prefer_reviewed: True
+#            columns_to_keep: []
+#            sep: "\t"
+
+# This section contains settings which will be used to create another config file
+# in order to run the FastSinkSource pipeline.
+# See https://github.com/jlaw9/FastSinkSource/tree/no-ontology for more info
+fastsinksource_pipeline_settings:
+    # Base directory where the inputs to the FastSinkSource pipeline will be placed
+    input_dir: "fss_inputs"
+    exp_name: "2020-03-sarscov2-human-ppi-ace2"
+    pos_neg_file: "pos-neg/2020-03-sarscov2-human-ppi-ace2/pos.txt"
+    # *name*: name of the corresponding downloaded network under "datasets_to_download"
+    # *network_collection*: T/F use this flag to run all of the networks in the collection
+    # *net_version*: if multiple network comparisons will be run, use this to distinguish between them
+    # *net_settings*: will be passed directly to the FSS pipeline. See that repo's config file for more info
+    networks_to_run:
+#      - names: [ "stringv11" ]
+#        file_name: "9606-uniprot-links-full-v11.txt.gz"
+#        plot_exp_name: "STRING11-150"
+#        # run using only the "combined" channel (last column)
+#        net_version: "stringv11/150"
+#        net_settings:
+#          # the weight_method will not be used, since we're passing a single network
+#          weight_method: 'gmw'
+#          string_nets: 'combined_score'
+#          string_cutoff: 150
+      - names: ["stringv11-5"]
+        file_name: "9606-uniprot-links-full-v11.5.txt.gz"
+        plot_exp_name: "STRING11-5-150"
+        # run using only the "combined" channel (last column)
+        net_version: "stringv11-5/150"
+        net_settings:
+            # the weight_method will not be used, since we're passing a single network
+            weight_method: 'gmw'
+            string_nets: 'combined_score'
+            string_cutoff: 150
+      # leaving out combining all STRING channels using GeneMANIA-Weighting (GMW) since using the 'combined_score' does just as well
+#      - names: ["stringv11"]
+#        file_name: "9606-uniprot-links-full-v11.txt.gz"
+#        # This flag indicates the downloaded file has all string channels (i.e., "full")
+#        string_networks: True
+#        net_version: "stringv11-indv/400"
+#        multi_net: True
+#        net_settings:
+#            weight_method: 'gmw'
+#            string_nets: 'all'
+#            string_cutoff: 400
+#      - names: ["tissuenet-v2/hpa-protein"]
+#        network_collection: True
+#      - names: ["tissuenet-v2/gtex-rnaseq"]
+#        network_collection: True
+#      - names: ["tissuenet-v2/hpa-rnaseq"]
+#        network_collection: True
+
+#      # also try combining the drugbank drug-protein interactions
+#      - names: ["stringv11"]
+#        file_name: "9606-uniprot-links-full-v11.txt.gz"
+#        #/prot-drug-itxs.tsv"
+#        drug_target_names: ["drugbank"]
+#        plot_exp_name: "STRING-400 + DrugBank"
+#        # run using only the "combined" channel (last column)
+#        net_version: "stringv11-drugbank/400"
+#        multi_net: True
+#        net_settings:
+#            weight_method: 'add'
+#            string_nets: 'combined_score'
+#            string_cutoff: 400
+#      # also run the tissuenet collections with drugbank
+#      - names: ["tissuenet-v2/hpa-protein"]
+#        network_collection: True
+#        drug_target_names: ["drugbank"]
+#        net_version: "tissuenet-v2-drugbank/hpa-protein"
+#      - names: ["tissuenet-v2/gtex-rnaseq"]
+#        network_collection: True
+#        drug_target_names: ["drugbank"]
+#        net_version: "tissuenet-v2-drugbank/gtex-rnaseq"
+#      - names: ["tissuenet-v2/hpa-rnaseq"]
+#        network_collection: True
+#        drug_target_names: ["drugbank"]
+#        net_version: "tissuenet-v2-drugbank/hpa-rnaseq"
+
+        #    TODO finish implemented the genesets to test
+#    # This section contains the list of genesets for which to test the predictions from fastsinksource for enrichment,
+#    # and corresponding options to pass to the script
+#    genesets_to_test:
+#    # *name*: name of the corresponding downloaded geneset under "datasets_to_download"
+#    # *k_to_test*: list of k-values to get the top-k predictions to test. 
+#    # *incremental_k_to_test*: list of 3 integers: starting k, ending k, and step size
+#    # *pval_corr*: Method to use for multiple hypothesis testing correction.
+#    #              options: "BF" (Bonferroni), "BH" (Benjamini-Hochberg)
+#      - name: "covid19-crowd"
+#        data_type: "genesets"
+#        #k_to_test: [20, 50, 100]
+#        incremental_k_to_test: [10, 100, 10]
+#        pval_corr: "BF"
+#      - name: "pharmgkb"
+#        data_type: "drug-targets"
+#        #k_to_test: [20, 50, 100]
+#        incremental_k_to_test: [10, 100, 10]
+#        pval_corr: "BF"
+
+    # the outputs will follow this structure:
+    # outputs/<net_version>/<exp_name>/<alg_name>/output_files
+    output_dir: "outputs/"
+
+    # These settings will be passed to the FastSinkSource pipeline
+    eval_settings: 
+      # automatically generate the predictions for each method
+      num_pred_to_write: -1
+      # for the methods that need negative examples, randomly sample negatives equal to a ratio of 5:1 Neg:Pos
+      sample_neg_examples_factor: 5
+      # 100 repetitions 
+      num_reps: 100
+      # uncomment this setting to run cross validation
+      # cross_validation_folds: 5
+      # cv_seed: 1
+
+    # Algorithms to run along with their settings.
+    # All combinations of parameters will be run. 
+    algs: 
+        # local has no parameters
+        local:
+            should_run: [False]
+        localplus:
+            should_run: [False]
+
+        genemania:
+            should_run: [False]
+            alpha: [1.0]
+            tol: [1e-05]
+
+        genemaniaplus:
+            should_run: [False]
+            alpha: [1.0]
+            tol: [1e-05]
+
+        fastsinksource:
+            should_run: [False]
+            alpha: [0.99]
+            eps: [0]
+            max_iters: [10]
+
+        fastsinksourceplus:
+            should_run: [False]
+            alpha: [0.99]
+            eps: [0]
+            max_iters: [10]
+            # this option isn't needed if alpha is < 1
+            #sinksourceplus_lambda: [0]
+
+        sinksource:
+            should_run: [False]
+            alpha: [1.0]
+            eps: [1e-4]
+            max_iters: [1000]
+
+        sinksourceplus:
+            should_run: [False]
+            alpha: [1.0]
+            eps: [0]
+            max_iters: [1000]
+            # the ss+ lambda option isn't needed if alpha is < 1
+            lambda: [10]
+
+        logistic_regression:
+            should_run: [False]
+            max_iters: [100]
+
+        svm:
+            should_run: [False]
+            max_iters: [1000]
+
+        rwr:
+            should_run: [False]
+            q: [0.5]
+            eps: [0.01]
+            max_iters: [100]
