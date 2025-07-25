@@ -26,13 +26,13 @@ conda list
 ```
 
 ## Download Processed Dataset
-Datasets used in this study will be uploaded to Zenodo ( TODO ). 
+Datasets used in this study has been uploaded to [Zenodo repository](https://zenodo.org/records/16423355).
 
 
 ## How to Run
 
 The choice of algorithms and networks to run the experiments is configured using a YAML file (e.g., [signor_s12.yaml](./config-files/signor_s12.yaml)). 
-To predict scores of proteins, and to compute node, path based effective diffusion, and diffusion betweenness score, run the following bash script.
+To predict scores of proteins, and to compute node, path based effective diffusion, and diffusion betweenness scores, run the following bash script.
 ```
    sh run.sh config-files/signor_s12.yaml
 ```
