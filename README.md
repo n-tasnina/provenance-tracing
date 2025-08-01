@@ -26,7 +26,7 @@ conda list
 ```
 
 ## Download Processed Dataset
-Datasets used in this study has been uploaded to [Zenodo repository](https://zenodo.org/records/16423355).
+Datasets used in this study has been uploaded to [Zenodo repository](https://doi.org/10.5281/zenodo.16423354).
 
 
 ## How to Run
